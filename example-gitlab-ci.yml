@@ -1,0 +1,36 @@
+image: alpine
+
+stages:
+  - backup
+  - deploy
+  - testing
+
+backup:
+  stage: backup
+  script: cat hello-world.html | gzip > backup-html.gz
+  artifacts:
+    paths:
+    - backup-html.gz
+    expire_in: 10 minutes  
+  only:
+  - master
+
+deploy:
+  stage: deploy
+  before_script:
+    - apk add openssh-client
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+  script:
+    - scp -o StrictHostKeyChecking=no backup-html.gz $SECOND_VM:/var/www/html
+    - ssh -o StrictHostKeyChecking=no $SECOND_VM "gunzip -c /var/www/html/backup-html.gz > /var/www/html/hello-world.html ; rm -f /var/www/html/backup-html.gz"
+
+test page:
+  stage: testing
+  before_script: 
+    - apk add curl
+  script: 
+    - CURL=$(curl -isS http://172.31.0.35 | head -1 | awk {'print $2'})
+    - "if [ \"$CURL\" != 200 ]; then exit 1; else exit 0; fi"
