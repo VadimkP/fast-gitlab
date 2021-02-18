@@ -1,0 +1,49 @@
+---
+- name: Create my env
+  hosts: ubnt1
+  become: yes
+
+  tasks:
+  - name: Install packages
+    apt:
+      name:
+        - docker.io
+        - python3
+        - python3-pip
+      state: present
+
+  - name: Pip install docker
+    pip:
+      name: docker
+      state: latest
+
+  - name: Pull docker image
+    docker_image:
+      name: gitlab/gitlab-ee:latest
+      source: pull
+
+  - name: Run gitlab conteiner
+    docker_container:
+      name: gitlab
+      image: gitlab/gitlab-ee:latest
+      state: started
+      restart: yes
+      volumes:
+        - "~/gitlab/logs:/var/log/gitlab"
+        - "~/gitlab/config:/etc/gitlab"
+        - "~/gitlab/data:/var/opt/gitlab"
+      ports:
+     # http port
+        - "80:80"
+     # https port
+        - "443:443"
+
+  - name: Run gitlab-runner conteiner
+    docker_container:
+      name: gitlab-runner
+      image: gitlab/gitlab-runner:latest
+      state: started
+      restart: yes
+      volumes:
+        - "/var/run/docker.sock:/var/run/docker.sock"
+        - "~/gitlab-runner/config:/etc/gitlab-runner"
