@@ -26,7 +26,9 @@ deploy:
   script:
     - scp -o StrictHostKeyChecking=no backup-html.gz $SECOND_VM:/var/www/html
     - ssh -o StrictHostKeyChecking=no $SECOND_VM "gunzip -c /var/www/html/backup-html.gz > /var/www/html/hello-world.html ; rm -f /var/www/html/backup-html.gz"
-
+  only:
+  - master
+  
 test page:
   stage: testing
   before_script: 
@@ -34,3 +36,5 @@ test page:
   script: 
     - CURL=$(curl -isS http://172.31.0.35 | head -1 | awk {'print $2'})
     - "if [ \"$CURL\" != 200 ]; then exit 1; else exit 0; fi"
+  only:
+  - master
