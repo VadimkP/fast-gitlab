@@ -18,7 +18,7 @@ backup:
        - ssh -o StrictHostKeyChecking=no $SECOND_VM "gzip /var/www/html/hello-world.html"
   artifacts:
     paths:
-       - hello-world.gz
+       - hello-world.html.gz
     expire_in: 10 minutes  
   only:
   - master
