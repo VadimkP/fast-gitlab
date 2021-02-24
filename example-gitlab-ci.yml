@@ -26,8 +26,8 @@ backup:
 deploy:
   stage: deploy
   script:
-    - scp -o StrictHostKeyChecking=no backup-html.gz $SECOND_VM:/var/www/html
-    - ssh -o StrictHostKeyChecking=no $SECOND_VM "gunzip -c /var/www/html/backup-html.gz > /var/www/html/hello-world.html ; rm -f /var/www/html/backup-html.gz"
+    - ssh -o StrictHostKeyChecking=no $SECOND_VM "rm -f /var/www/html/hello-world.html"
+    - scp -o StrictHostKeyChecking=no hello-world.html $SECOND_VM:/var/www/html
   only:
   - master
   
