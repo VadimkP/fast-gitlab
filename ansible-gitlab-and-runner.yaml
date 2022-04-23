@@ -1,6 +1,5 @@
 ---
-- name: Create my env
-  hosts: ubnt1
+- name: Fast GitLab and Runner
   become: yes
 
   tasks:
